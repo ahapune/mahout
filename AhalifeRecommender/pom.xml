@@ -1,245 +1,278 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <artifactId>mia</artifactId>
-  <groupId>com.manning</groupId>
-  <name>Mahout in Action Examples</name>
-  <version>0.1</version>
-  <description>Examples for Mahout in Action book</description>
-  <packaging>jar</packaging>
-  <!-- TODO: add licensing, contact information, etc. -->
+	<artifactId>recommend</artifactId>
+	<groupId>com.ahalife</groupId>
+	<name>Ahalife Recommender </name>
+	<version>0.1</version>
+	<description>Ahalife Recommender</description>
+	<packaging>jar</packaging>
+	<properties>
+		<mahout.version>0.9</mahout.version>
+		<mahout.groupid>org.apache.mahout</mahout.groupid>
+	</properties>
 
-  <properties>
-    <mahout.version>0.5</mahout.version>
-    <mahout.groupid>org.apache.mahout</mahout.groupid>
-  </properties>
+	<url>http://ahalife.com</url>
+	<scm>
+		<url>https://github.com/ahapune/mahout</url>
+	</scm>
+	<organization>
+		<name>AHAlife</name>
+		<url>http://ahalife.com</url>
+	</organization>
+	<repositories>
+		<repository>
+			<id>ahalife</id>
+			<name>AHAlife Internal Repo</name>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<url>http://nexus.dv.ahalife.com/content/groups/ahalife/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>blc-staging</id>
+			<name>BLC-Staging</name>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<url>https://oss.sonatype.org/content/repositories/orgbroadleafcommerce-1024/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>mvn-neo4j</id>
+			<url>http://m2.neo4j.org/content/groups/everything</url>
+		</repository>
+		<repository>
+			<id>oss-sonatype</id>
+			<name>oss-sonatype</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<source>1.6</source>
+					<target>1.6</target>
+					<optimize>true</optimize>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.4.3</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<!-- create hadoop job jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>job</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/job.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<execution>
+						<id>my-jar-with-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
-  <url>http://www.manning.com/owen/</url>
-  <scm>
-    <url>https://github.com/tdunning/MiA</url>
-  </scm>
-  <organization>
-    <name>Manning</name>
-    <url>http://www.manning.com</url>
-  </organization>
+	<profiles>
+		<profile>
+			<id>profile-buildthrift-linux</id>
+			<activation>
+				<file>
+					<exists>/usr/local/bin/thrift</exists>
+				</file>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>generate-sources</id>
+								<phase>generate-sources</phase>
+								<configuration>
+									<tasks>
+										<mkdir dir="target/generated" />
+										<mkdir dir="src/main/java/mia/classifier/ch16/generated" />
+										<exec executable="/usr/local/bin/thrift">
+											<arg value="--gen" />
+											<arg value="java" />
+											<arg value="-o" />
+											<arg value="target/generated" />
+											<arg value="src/main/thrift/ch16.thrift" />
+										</exec>
+										<delete>
+											<fileset dir="src/main/java/mia/classifier/ch16/generated" includes="**/*" />
+										</delete>
+										<copy todir="src/main/java/mia/classifier/ch16/generated">
+											<fileset dir="target/generated/gen-java/mia/classifier/ch16/generated" />
+										</copy>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>profile-buildthrift-macports</id>
+			<activation>
+				<file>
+					<exists>/opt/local/bin/thrift</exists>
+				</file>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>generate-sources</id>
+								<phase>generate-sources</phase>
+								<configuration>
+									<tasks>
+										<mkdir dir="target/generated" />
+										<mkdir dir="src/main/java/mia/classifier/ch16/generated" />
+										<exec executable="/opt/local/bin/thrift">
+											<arg value="--gen" />
+											<arg value="java" />
+											<arg value="-o" />
+											<arg value="target/generated" />
+											<arg value="src/main/thrift/ch16.thrift" />
+										</exec>
+										<delete>
+											<fileset dir="src/main/java/mia/classifier/ch16/generated" includes="**/*" />
+										</delete>
+										<copy todir="src/main/java/mia/classifier/ch16/generated">
+											<fileset dir="target/generated/gen-java/mia/classifier/ch16/generated" />
+										</copy>
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <encoding>UTF-8</encoding>
-          <source>1.6</source>
-          <target>1.6</target>
-          <optimize>true</optimize>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.6</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>2.4.3</version>
-        <configuration>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-      <!-- create hadoop job jar -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>job</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/job.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-          <execution>
-            <id>my-jar-with-dependencies</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-              </descriptorRefs>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+	<dependencies>
+		<dependency>
+			<groupId>${mahout.groupid}</groupId>
+			<artifactId>mahout-core</artifactId>
+			<version>${mahout.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>4.0.5.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>4.0.5.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.31</version>
+		</dependency>
 
-  <profiles>
-    <profile>
-      <id>profile-buildthrift-linux</id>
-      <activation>
-        <file>
-          <exists>/usr/local/bin/thrift</exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>generate-sources</id>
-                <phase>generate-sources</phase>
-                <configuration>
-                  <tasks>
-                    <mkdir dir="target/generated"/>
-                    <mkdir dir="src/main/java/mia/classifier/ch16/generated"/>
-                    <exec executable="/usr/local/bin/thrift">
-                      <arg value="--gen"/>
-                      <arg value="java"/>
-                      <arg value="-o"/>
-                      <arg value="target/generated"/>
-                      <arg value="src/main/thrift/ch16.thrift"/>
-                    </exec>
-                    <delete>
-                      <fileset dir="src/main/java/mia/classifier/ch16/generated" includes="**/*"/>
-                    </delete>
-                    <copy todir="src/main/java/mia/classifier/ch16/generated">
-                      <fileset dir="target/generated/gen-java/mia/classifier/ch16/generated"/>
-                    </copy>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>profile-buildthrift-macports</id>
-      <activation>
-        <file>
-          <exists>/opt/local/bin/thrift</exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>generate-sources</id>
-                <phase>generate-sources</phase>
-                <configuration>
-                  <tasks>
-                    <mkdir dir="target/generated"/>
-                    <mkdir dir="src/main/java/mia/classifier/ch16/generated"/>
-                    <exec executable="/opt/local/bin/thrift">
-                      <arg value="--gen"/>
-                      <arg value="java"/>
-                      <arg value="-o"/>
-                      <arg value="target/generated"/>
-                      <arg value="src/main/thrift/ch16.thrift"/>
-                    </exec>
-                    <delete>
-                      <fileset dir="src/main/java/mia/classifier/ch16/generated" includes="**/*"/>
-                    </delete>
-                    <copy todir="src/main/java/mia/classifier/ch16/generated">
-                      <fileset dir="target/generated/gen-java/mia/classifier/ch16/generated"/>
-                    </copy>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+		<dependency>
+			<groupId>${mahout.groupid}</groupId>
+			<artifactId>mahout-core</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+			<version>${mahout.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${mahout.groupid}</groupId>
+			<artifactId>mahout-math</artifactId>
+			<version>${mahout.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${mahout.groupid}</groupId>
+			<artifactId>mahout-math</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+			<version>${mahout.version}</version>
+		</dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>${mahout.groupid}</groupId>
-      <artifactId>mahout-core</artifactId>
-      <version>${mahout.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${mahout.groupid}</groupId>
-      <artifactId>mahout-core</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-      <version>${mahout.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${mahout.groupid}</groupId>
-      <artifactId>mahout-math</artifactId>
-      <version>${mahout.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${mahout.groupid}</groupId>
-      <artifactId>mahout-math</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-      <version>${mahout.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${mahout.groupid}</groupId>
-      <artifactId>mahout-utils</artifactId>
-      <version>${mahout.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${mahout.groupid}</groupId>
-      <artifactId>mahout-examples</artifactId>
-      <version>${mahout.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>r03</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.thrift</groupId>
-      <artifactId>libthrift</artifactId>
-      <version>0.6.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.5.11</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>zookeeper</artifactId>
-      <version>3.3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.twitter4j</groupId>
-      <artifactId>twitter4j-stream</artifactId>
-      <version>2.2.3</version>
-    </dependency>    
-    <dependency>
-    	<groupId>commons-io</groupId>
-    	<artifactId>commons-io</artifactId>
-    	<version>2.0.1</version>
-    	<type>jar</type>
-    	<scope>compile</scope>
-    </dependency>
-  </dependencies>
+		<dependency>
+			<groupId>${mahout.groupid}</groupId>
+			<artifactId>mahout-examples</artifactId>
+			<version>${mahout.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>17.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.thrift</groupId>
+			<artifactId>libthrift</artifactId>
+			<version>0.6.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.0.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 
 </project>
