@@ -50,8 +50,7 @@ public class JDBCDao {
 		return dataSource;
 	}
 
-	public static void setProductList(
-			LongPrimitiveIterator longPrimitiveIterator) {
+	public static void setProductList(LongPrimitiveIterator longPrimitiveIterator) {
 		productIds = new ArrayList<Long>();
 		while (longPrimitiveIterator.hasNext()) {
 			productIds.add(longPrimitiveIterator.next());

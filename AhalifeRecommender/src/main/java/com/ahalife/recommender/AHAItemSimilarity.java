@@ -29,22 +29,20 @@ public class AHAItemSimilarity extends AbstractItemSimilarity implements
 			throws TasteException {
 		List<Long> itemCategories1 = JDBCDao.getProductCategories(itemID1);
 		List<Long> itemCategories2 = JDBCDao.getProductCategories(itemID2);
-		int pref1and2 = getDataModel().getNumUsersWithPreferenceFor(itemID1,
-				itemID2);
+		int pref1and2 = getDataModel().getNumUsersWithPreferenceFor(itemID1, itemID2);
 		int pref1 = getDataModel().getNumUsersWithPreferenceFor(itemID1);
 		int pref2 = getDataModel().getNumUsersWithPreferenceFor(itemID2);
-		double coff = (double) pref1and2 / (double) (pref1 + pref2 - pref1and2);
+		double coeff = (double) pref1and2 / (double) (pref1 + pref2 - pref1and2);
 		if (CollectionUtils.containsAny(itemCategories1, itemCategories2)) {
-			double newCoff = (coff + 0.5);
-			if (newCoff > 1) {
+			double newCoeff = (coeff + 0.5);
+			if (newCoeff > 1) {
 				return 1;
 			} else {
-				return newCoff;
+				return newCoeff;
 			}
 
 		} else {
-			return coff;
-
+			return coeff;
 		}
 	}
 
