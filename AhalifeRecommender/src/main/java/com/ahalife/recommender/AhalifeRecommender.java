@@ -14,9 +14,9 @@ import org.apache.mahout.cf.taste.eval.RecommenderBuilder;
 import org.apache.mahout.cf.taste.eval.RecommenderIRStatsEvaluator;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.eval.GenericRecommenderIRStatsEvaluator;
-import org.apache.mahout.cf.taste.impl.model.GenericBooleanPrefDataModel;
+import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
-import org.apache.mahout.cf.taste.impl.recommender.GenericBooleanPrefItemBasedRecommender;
+import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.Preference;
 import org.apache.mahout.cf.taste.model.PreferenceArray;
@@ -32,33 +32,32 @@ public class AhalifeRecommender {
 
 	public static void main(String[] args) throws Exception {
 		RandomUtils.useTestSeed();
-		DataModel model = new GenericBooleanPrefDataModel(
-				GenericBooleanPrefDataModel.toDataMap(new FileDataModel(
+		DataModel model = new GenericDataModel(
+				GenericDataModel.toDataMap(new FileDataModel(
 						new File(AhalifeRecommender.class.getClassLoader()
-								.getResource("aha.csv").getFile()))));
+								.getResource("CombinedData.csv").getFile()))));
 		JDBCDao.setProductList(model.getItemIDs());
 		RecommenderIRStatsEvaluator evaluator = new GenericRecommenderIRStatsEvaluator();
+		
 		RecommenderBuilder recommenderBuilder = new RecommenderBuilder() {
 			@Override
-			public Recommender buildRecommender(DataModel model)
-					throws TasteException {
+			public Recommender buildRecommender(DataModel model) throws TasteException {
 				ItemSimilarity similarity = new AHAItemSimilarity(model);
-				return new GenericBooleanPrefItemBasedRecommender(model, similarity);
+				return new GenericItemBasedRecommender(model, similarity);
 			}
 		};
 		
 		
 		DataModelBuilder modelBuilder = new DataModelBuilder() {
-			public DataModel buildDataModel(
-					FastByIDMap<PreferenceArray> trainingData) {
-				return new GenericBooleanPrefDataModel(
-						GenericBooleanPrefDataModel.toDataMap(trainingData));
+			@Override
+			public DataModel buildDataModel(FastByIDMap<PreferenceArray> trainingData) {
+				return new GenericDataModel(trainingData);
 			}
 		};
 
 		
 		int userId = Integer.parseInt(StringConstants.getString("StringConstants.TEST_USER_ID"));
-		IRStatistics stats = evaluator.evaluate(recommenderBuilder,	modelBuilder, model, null, 1,
+		IRStatistics stats = evaluator.evaluate(recommenderBuilder,	modelBuilder, model, null, 5,
 				GenericRecommenderIRStatsEvaluator.CHOOSE_THRESHOLD, 1);
 		List<RecommendedItem> reco = recommenderBuilder.buildRecommender(model).recommend(userId, 5);
 
