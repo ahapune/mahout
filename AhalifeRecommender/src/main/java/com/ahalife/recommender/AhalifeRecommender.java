@@ -69,7 +69,8 @@ public class AhalifeRecommender {
 		
 		long evaluationTime = endTime - startTime;
 		System.out.println("done in " + evaluationTime + "ms");
-		System.out.print("\tRecommending products ... ");
+		System.out.println("\tInitialization Complete.\n\n");
+		System.out.print("\tRecommending 5 products ... ");
 		startTime = System.currentTimeMillis();
 		List<RecommendedItem> reco = recommenderBuilder.buildRecommender(model).recommend(userId, 5);
 		endTime = System.currentTimeMillis();
