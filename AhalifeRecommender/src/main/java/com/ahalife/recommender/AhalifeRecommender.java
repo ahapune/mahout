@@ -101,8 +101,8 @@ public class AhalifeRecommender {
 		RecommenderTests.testForUser(ratingMap, recoMap, userId);
 		
 		
-		System.out.println("\n\nThe Precision and Recall was:"); 
-		System.out.println(stats.getPrecision());
-		System.out.println(stats.getRecall());
+//		System.out.println("\n\nThe Precision and Recall was:"); 
+//		System.out.println(stats.getPrecision());
+//		System.out.println(stats.getRecall());
 	}
 }
