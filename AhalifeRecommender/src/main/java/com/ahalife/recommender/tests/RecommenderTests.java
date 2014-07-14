@@ -25,7 +25,7 @@ public class RecommenderTests {
 		ids.addAll(ratingMap.keySet());
 		List<Map<String, Object>> productInfo = JDBCDao.getProductInfo(ids);
 
-		System.out.println("The User ID " + userId + " has bought following items, following times:"); 
+		System.out.println("\n\nThe User ID " + userId + " has bought following items, following times:"); 
 		System.out.println("ID \t\t\t\t NAME \t\t\t\t #BUYS \t\t\t\t\t URL"); 
 		System.out.println("== \t\t\t\t ==== \t\t\t\t ===== \t\t\t\t\t ==="); 
 
@@ -47,7 +47,12 @@ public class RecommenderTests {
 		
 		List<Long> recommendedIds = new ArrayList<Long>();
 		recommendedIds.addAll(recoMap.keySet());
+		System.out.print("\tFetching DB Meta Data for recommended products ...");
+		long startTime = System.currentTimeMillis();
 		productInfo = JDBCDao.getProductInfo(recommendedIds);
+		long endTime = System.currentTimeMillis();
+		long dbFetchTime = endTime - startTime;
+		System.out.println("done in " + dbFetchTime + "ms");
 		System.out.println("ID \t\t\t\t VALUE \t\t\t NAME \t\t\t\t\t URL"); 
 		System.out.println("== \t\t\t\t ===== \t\t\t ==== \t\t\t\t\t ==="); 
 		lItr = productInfo.iterator();

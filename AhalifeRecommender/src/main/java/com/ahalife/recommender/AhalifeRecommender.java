@@ -32,6 +32,9 @@ public class AhalifeRecommender {
 
 	public static void main(String[] args) throws Exception {
 		RandomUtils.useTestSeed();
+		
+		System.out.print("\tBuilding Data Model & Recommender ...");
+		long startTime = System.currentTimeMillis();
 		DataModel model = new GenericDataModel(
 				GenericDataModel.toDataMap(new FileDataModel(
 						new File(AhalifeRecommender.class.getClassLoader()
@@ -54,13 +57,26 @@ public class AhalifeRecommender {
 				return new GenericDataModel(trainingData);
 			}
 		};
-
-		
+		long endTime = System.currentTimeMillis();
+		System.out.println(" Done in " + (endTime - startTime) + "ms.");
 		int userId = Integer.parseInt(StringConstants.getString("StringConstants.TEST_USER_ID"));
+		startTime = System.currentTimeMillis();
+		System.out.print("\tEvaluating model + recommender ... ");
 		IRStatistics stats = evaluator.evaluate(recommenderBuilder,	modelBuilder, model, null, 5,
 				GenericRecommenderIRStatsEvaluator.CHOOSE_THRESHOLD, 1);
+		endTime = System.currentTimeMillis();
+		
+		long evaluationTime = endTime - startTime;
+		System.out.println("done in " + evaluationTime + "ms");
+		System.out.println("\tInitialization Complete.\n\n");
+		System.out.print("\tRecommending 5 products ... ");
+		startTime = System.currentTimeMillis();
 		List<RecommendedItem> reco = recommenderBuilder.buildRecommender(model).recommend(userId, 5);
-
+		endTime = System.currentTimeMillis();
+		long recoTime = endTime-startTime;
+		System.out.println("done in " + recoTime + "ms");
+		
+		
 		PreferenceArray p = model.getPreferencesFromUser(userId);
 		Iterator<Preference> pItr = p.iterator();
 		Map<Long, Float> ratingMap = new HashMap<Long, Float>();
@@ -84,7 +100,8 @@ public class AhalifeRecommender {
 		
 		RecommenderTests.testForUser(ratingMap, recoMap, userId);
 		
-		System.out.println("\n\nThe Precision and Recall in the data-set was:"); 
+		
+		System.out.println("\n\nThe Precision and Recall was:"); 
 		System.out.println(stats.getPrecision());
 		System.out.println(stats.getRecall());
 	}
