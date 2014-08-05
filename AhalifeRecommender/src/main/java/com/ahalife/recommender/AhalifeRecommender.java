@@ -38,7 +38,7 @@ public class AhalifeRecommender {
 		DataModel model = new GenericDataModel(
 				GenericDataModel.toDataMap(new FileDataModel(
 						new File(AhalifeRecommender.class.getClassLoader()
-								.getResource("CombinedData.csv").getFile()))));
+								.getResource("CombinedData_20140703.csv").getFile()))));
 		JDBCDao.setProductList(model.getItemIDs());
 		RecommenderIRStatsEvaluator evaluator = new GenericRecommenderIRStatsEvaluator();
 		

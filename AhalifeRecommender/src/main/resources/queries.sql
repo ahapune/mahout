@@ -1,4 +1,4 @@
-/* Registered Checkouts with # > 1 */
+/* Registered Checkouts with # > X */
 		select bc.CUSTOMER_ID,bp.PRODUCT_ID,count(boi.ORDER_ITEM_ID)  from blc_customer bc
 		join blc_order bo on bo.CUSTOMER_ID = bc.CUSTOMER_ID 
 		join blc_order_item boi on boi.ORDER_ID = bo.ORDER_ID
@@ -18,12 +18,12 @@
 			     			where bc.EMAIL_ADDRESS not like '%ahalife.com'
 			     				/* and bc.IS_REGISTERED = true */
 			     				and bo.ORDER_STATUS ='SUBMITTED'
-								Group by bc.CUSTOMER_ID having count(bp.PRODUCT_ID) > 1) 
+								Group by bc.CUSTOMER_ID having count(bp.PRODUCT_ID) > 2) 
 			as w ) 
 		group by bc.CUSTOMER_ID,bp.PRODUCT_ID  order by bc.CUSTOMER_ID 
         
 		
- /* Registered Add-To-Bags with # > 1 */
+ /* Registered Add-To-Bags with # > X */
 		select bc.CUSTOMER_ID,bp.PRODUCT_ID,count(boi.ORDER_ITEM_ID)  from blc_customer bc
 		join blc_order bo on bo.CUSTOMER_ID = bc.CUSTOMER_ID 
 		join blc_order_item boi on boi.ORDER_ID = bo.ORDER_ID
@@ -44,7 +44,7 @@
 			     				/* and bc.IS_REGISTERED = true */
 			     				and bo.ORDER_STATUS ='IN_PROCESS'
 			     				
-								Group by bc.CUSTOMER_ID having count(bp.PRODUCT_ID) > 1) 
+								Group by bc.CUSTOMER_ID having count(bp.PRODUCT_ID) > 2) 
 			as w ) 
 			group by bc.CUSTOMER_ID,bp.PRODUCT_ID  order by bc.CUSTOMER_ID 
 
